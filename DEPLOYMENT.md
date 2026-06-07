@@ -4,7 +4,7 @@ Deploy **StockPilot WMS** using **Docker Compose** on an Ubuntu VPS, with **Ngin
 
 > **Deployment method:** Docker only. Do not use PM2 or bare-metal Node/Python on the server — the stack is designed to run entirely in containers.
 
-Replace `stockpilot.yourdomain.com` with your actual subdomain throughout this guide.
+Replace `abibas.kindycloud.uz` with your actual subdomain throughout this guide.
 
 ---
 
@@ -41,7 +41,7 @@ Replace `stockpilot.yourdomain.com` with your actual subdomain throughout this g
 Internet
    │
    ▼
-DNS  stockpilot.yourdomain.com  →  your server public IP
+DNS  abibas.kindycloud.uz  →  your server public IP
    │
    ▼
 Nginx (:80 HTTP, :443 HTTPS)          ← installed on the HOST (not in Docker)
@@ -58,11 +58,11 @@ Docker: backend container (:8000)     ← FastAPI + SQLModel + Alembic
 
 ### How traffic flows
 
-| Path | What happens |
-|------|----------------|
-| Browser → `https://stockpilot.yourdomain.com` | Nginx forwards to `127.0.0.1:3000` (frontend container) |
-| Browser → `https://stockpilot.yourdomain.com/api/v1/...` | Frontend Next.js rewrites to `http://backend:8000/api/v1/...` inside the Docker network |
-| Backend → PostgreSQL | Direct connection using `DATABASE_URL` from `backend/.env` |
+| Path                                                | What happens                                                                            |
+| --------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| Browser → `https://abibas.kindycloud.uz`            | Nginx forwards to `127.0.0.1:3000` (frontend container)                                 |
+| Browser → `https://abibas.kindycloud.uz/api/v1/...` | Frontend Next.js rewrites to `http://backend:8000/api/v1/...` inside the Docker network |
+| Backend → PostgreSQL                                | Direct connection using `DATABASE_URL` from `backend/.env`                              |
 
 **Important:**
 
@@ -91,15 +91,15 @@ Both containers share the `app` network defined in `docker-compose.yml`. The fro
 
 ## Before you start — checklist
 
-| Requirement | Details |
-|-------------|---------|
-| Server | Ubuntu VPS (e.g. AWS EC2). SSH as **`ubuntu`**. |
-| Disk | **At least 20 GB** — Python + Node Docker builds need space |
-| Domain | Subdomain with an **A record** → server public IP |
-| Database | Neon PostgreSQL (dev/staging) or AWS RDS (production) |
-| GitHub | Private repo — needs SSH deploy key on server |
-| Docker | Docker Engine + Compose plugin on server (Step 2) |
-| Time | ~30–45 minutes for first production deploy |
+| Requirement | Details                                                     |
+| ----------- | ----------------------------------------------------------- |
+| Server      | Ubuntu VPS (e.g. AWS EC2). SSH as **`ubuntu`**.             |
+| Disk        | **At least 20 GB** — Python + Node Docker builds need space |
+| Domain      | Subdomain with an **A record** → server public IP           |
+| Database    | Neon PostgreSQL (dev/staging) or AWS RDS (production)       |
+| GitHub      | Private repo — needs SSH deploy key on server               |
+| Docker      | Docker Engine + Compose plugin on server (Step 2)           |
+| Time        | ~30–45 minutes for first production deploy                  |
 
 ---
 
@@ -171,17 +171,17 @@ docker compose down
 
 In your domain host, add:
 
-| Field | Value |
-|-------|-------|
+| Field           | Value                                   |
+| --------------- | --------------------------------------- |
 | **Host / Name** | `stockpilot` (or your chosen subdomain) |
-| **Type** | `A` |
-| **Value** | Your server **public** IP |
-| **TTL** | `300` |
+| **Type**        | `A`                                     |
+| **Value**       | Your server **public** IP               |
+| **TTL**         | `300`                                   |
 
 Verify from your PC (wait 5–10 min after saving):
 
 ```bash
-dig stockpilot.yourdomain.com +short
+dig abibas.kindycloud.uz +short
 ```
 
 On the server, your public IP should match:
@@ -207,13 +207,13 @@ pm2 save 2>/dev/null || true
 cd /var/www/abibas 2>/dev/null && docker compose down || true
 
 # Remove old Nginx site
-sudo rm -f /etc/nginx/sites-enabled/stockpilot.yourdomain.com
-sudo rm -f /etc/nginx/sites-available/stockpilot.yourdomain.com
+sudo rm -f /etc/nginx/sites-enabled/abibas.kindycloud.uz
+sudo rm -f /etc/nginx/sites-available/abibas.kindycloud.uz
 sudo rm -f /etc/nginx/sites-enabled/default
 sudo nginx -t && sudo systemctl reload nginx
 
 # Remove failed SSL cert (if Certbot was attempted)
-sudo certbot delete --cert-name stockpilot.yourdomain.com 2>/dev/null || true
+sudo certbot delete --cert-name abibas.kindycloud.uz 2>/dev/null || true
 ```
 
 ---
@@ -222,7 +222,20 @@ sudo certbot delete --cert-name stockpilot.yourdomain.com 2>/dev/null || true
 
 ```bash
 sudo apt update && sudo apt upgrade -y
-sudo apt install -y docker.io docker-compose-plugin git nginx certbot python3-certbot-nginx curl
+sudo apt install -y docker.io git nginx certbot python3-certbot-nginx curl
+```
+
+Install Docker Compose (package name varies by Ubuntu version):
+
+```bash
+# Ubuntu 24.04 / 22.04 — usually works:
+sudo apt install -y docker-compose-plugin 2>/dev/null || true
+
+# Ubuntu 26.04+ (your server) — plugin package is named differently:
+sudo apt install -y docker-compose-v2 2>/dev/null || true
+
+# Fallback — legacy standalone binary (always works):
+sudo apt install -y docker-compose 2>/dev/null || true
 ```
 
 Add your user to the Docker group (required so `ubuntu` can run Docker without `sudo`):
@@ -237,11 +250,13 @@ Verify:
 
 ```bash
 docker --version
-docker compose version
+docker compose version    # v2 (space) — preferred
+# OR
+docker-compose --version  # v1 (hyphen) — also fine
 nginx -v
 ```
 
-> Use **`docker compose`** (v2 plugin, with a space). The legacy `docker-compose` (hyphen) also works on older systems if the plugin is unavailable.
+> **Ubuntu 26.04 note:** `docker-compose-plugin` is not in apt on newer Ubuntu. Use **`docker-compose-v2`** instead — it provides the `docker compose` command. If only `docker-compose` (hyphen) is available, use that everywhere this guide says `docker compose` (e.g. `docker-compose up --build -d`).
 
 ---
 
@@ -262,11 +277,11 @@ You should see `80` and `443` allowed. Ports **3000** and **8000** do **not** ne
 
 If you use **AWS EC2**, open the instance **Security Group**:
 
-| Type | Port | Source | Purpose |
-|------|------|--------|---------|
-| SSH | 22 | Your IP (or `0.0.0.0/0`) | SSH access |
-| HTTP | 80 | `0.0.0.0/0` | Website + Certbot |
-| HTTPS | 443 | `0.0.0.0/0` | Secure website |
+| Type  | Port | Source                   | Purpose           |
+| ----- | ---- | ------------------------ | ----------------- |
+| SSH   | 22   | Your IP (or `0.0.0.0/0`) | SSH access        |
+| HTTP  | 80   | `0.0.0.0/0`              | Website + Certbot |
+| HTTPS | 443  | `0.0.0.0/0`              | Secure website    |
 
 **Do not** open 3000 or 8000 to the internet in production.
 
@@ -276,10 +291,10 @@ If you use **AWS EC2**, open the instance **Security Group**:
 
 You need **two separate keys**:
 
-| Key | Purpose | Private key stored | Public key added to |
-|-----|---------|-------------------|---------------------|
-| **Server git key** | Server runs `git clone` / `git pull` | Server `~/.ssh/github_repo` | GitHub → repo → **Deploy keys** |
-| **Actions deploy key** | GitHub Actions SSHs into server | GitHub secret `SSH_KEY` | Server `~/.ssh/authorized_keys` |
+| Key                    | Purpose                              | Private key stored          | Public key added to             |
+| ---------------------- | ------------------------------------ | --------------------------- | ------------------------------- |
+| **Server git key**     | Server runs `git clone` / `git pull` | Server `~/.ssh/github_repo` | GitHub → repo → **Deploy keys** |
+| **Actions deploy key** | GitHub Actions SSHs into server      | GitHub secret `SSH_KEY`     | Server `~/.ssh/authorized_keys` |
 
 ```text
 GitHub (private repo)  ←—— server git key ———  Server
@@ -336,12 +351,12 @@ Add GitHub Actions secrets:
 
 **GitHub → repo → Settings → Secrets and variables → Actions → New repository secret**
 
-| Secret name | Value |
-|-------------|-------|
-| `SSH_HOST` | Server public IP |
-| `SSH_USER` | **`ubuntu`** |
-| `SSH_KEY` | Full output of `cat ~/.ssh/github_actions` (private key) |
-| `DEPLOY_PATH` | `/var/www/abibas` |
+| Secret name   | Value                                                    |
+| ------------- | -------------------------------------------------------- |
+| `SSH_HOST`    | Server public IP                                         |
+| `SSH_USER`    | **`ubuntu`**                                             |
+| `SSH_KEY`     | Full output of `cat ~/.ssh/github_actions` (private key) |
+| `DEPLOY_PATH` | `/var/www/abibas`                                        |
 
 The deploy workflow (`.github/workflows/deploy.yml`) skips until all four secrets exist.
 
@@ -424,8 +439,8 @@ docker compose exec backend uv run python -m app.db.seed
 #### Verify on the server
 
 ```bash
-# Backend health (localhost only in production)
-curl http://127.0.0.1:8000/health
+# Backend health (inside container — prod does not expose :8000 on host)
+docker compose exec backend curl -sf http://127.0.0.1:8000/health
 # Expected: {"status":"ok","service":"StockPilot WMS"}
 
 # Frontend responding
@@ -450,10 +465,10 @@ docker compose logs -f
 
 Both Dockerfiles define `HEALTHCHECK` probes:
 
-| Service | Probe | Interval |
-|---------|-------|----------|
-| Backend | `GET /health` on port 8000 | 30s |
-| Frontend | `GET /` on port 3000 | 30s |
+| Service  | Probe                      | Interval |
+| -------- | -------------------------- | -------- |
+| Backend  | `GET /health` on port 8000 | 30s      |
+| Frontend | `GET /` on port 3000       | 30s      |
 
 ```bash
 docker inspect --format='{{.State.Health.Status}}' abibas-backend-1
@@ -471,7 +486,7 @@ The frontend internally proxies `/api/v1/*` to the backend — Nginx only needs 
 #### 8a. Create the site config
 
 ```bash
-sudo nano /etc/nginx/sites-available/stockpilot.yourdomain.com
+sudo nano /etc/nginx/sites-available/abibas.kindycloud.uz
 ```
 
 Paste this entire block (replace the domain):
@@ -480,7 +495,7 @@ Paste this entire block (replace the domain):
 server {
     listen 80;
     listen [::]:80;
-    server_name stockpilot.yourdomain.com;
+    server_name abibas.kindycloud.uz;
 
     proxy_connect_timeout 60s;
     proxy_send_timeout 60s;
@@ -506,7 +521,7 @@ server {
 #### 8b. Enable the site
 
 ```bash
-sudo ln -sf /etc/nginx/sites-available/stockpilot.yourdomain.com /etc/nginx/sites-enabled/
+sudo ln -sf /etc/nginx/sites-available/abibas.kindycloud.uz /etc/nginx/sites-enabled/
 sudo rm -f /etc/nginx/sites-enabled/default
 sudo nginx -t
 sudo systemctl restart nginx
@@ -523,7 +538,7 @@ sudo systemctl enable nginx
 
 ```bash
 curl -I http://127.0.0.1:3000
-curl -I -H "Host: stockpilot.yourdomain.com" http://127.0.0.1
+curl -I -H "Host: abibas.kindycloud.uz" http://127.0.0.1
 bash scripts/test-stack.sh
 ```
 
@@ -532,7 +547,7 @@ bash scripts/test-stack.sh
 Open:
 
 ```text
-http://stockpilot.yourdomain.com
+http://abibas.kindycloud.uz
 ```
 
 You should see the **StockPilot login page**.
@@ -544,7 +559,7 @@ Login with: `admin@stockpilot.com` / `pass1234`
 ```bash
 # 1. DNS correct?
 curl -4 ifconfig.me
-dig +short stockpilot.yourdomain.com @8.8.8.8
+dig +short abibas.kindycloud.uz @8.8.8.8
 
 # 2. Docker running?
 docker compose ps
@@ -569,24 +584,24 @@ Also check **AWS Security Group** allows inbound port **80**.
 
 ### Step 10 — HTTPS with Let's Encrypt (Certbot)
 
-Once `http://stockpilot.yourdomain.com` works in a browser:
+Once `http://abibas.kindycloud.uz` works in a browser:
 
 ```bash
-sudo certbot --nginx -d stockpilot.yourdomain.com
+sudo certbot --nginx -d abibas.kindycloud.uz
 ```
 
-| Prompt | Answer |
-|--------|--------|
-| Email address | Your email (for expiry notices) |
-| Terms of Service | `Y` |
-| Share email with EFF | `Y` or `N` |
+| Prompt                | Answer                           |
+| --------------------- | -------------------------------- |
+| Email address         | Your email (for expiry notices)  |
+| Terms of Service      | `Y`                              |
+| Share email with EFF  | `Y` or `N`                       |
 | Redirect HTTP → HTTPS | **`2` (Redirect)** — recommended |
 
 Verify HTTPS:
 
 ```bash
 # In browser
-https://stockpilot.yourdomain.com
+https://abibas.kindycloud.uz
 ```
 
 ```bash
@@ -688,20 +703,20 @@ docker compose exec frontend sh
 
 ### Backend (`backend/.env`)
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `DATABASE_URL` | Yes | PostgreSQL connection string. Must include `?sslmode=require` for Neon/RDS |
-| `SECRET_KEY` | Yes | JWT signing key — use 32+ random characters |
-| `ALGORITHM` | No | Default `HS256` |
-| `ACCESS_TOKEN_EXPIRE_MINUTES` | No | Default `1440` (24 hours) |
-| `PORT` | No | Default `8000`. Overridden by `docker-compose.yml` |
+| Variable                      | Required | Description                                                                |
+| ----------------------------- | -------- | -------------------------------------------------------------------------- |
+| `DATABASE_URL`                | Yes      | PostgreSQL connection string. Must include `?sslmode=require` for Neon/RDS |
+| `SECRET_KEY`                  | Yes      | JWT signing key — use 32+ random characters                                |
+| `ALGORITHM`                   | No       | Default `HS256`                                                            |
+| `ACCESS_TOKEN_EXPIRE_MINUTES` | No       | Default `1440` (24 hours)                                                  |
+| `PORT`                        | No       | Default `8000`. Overridden by `docker-compose.yml`                         |
 
 ### Frontend (Docker build)
 
-| Variable | Set by | Description |
-|----------|--------|-------------|
-| `API_URL` | `docker-compose.yml` build arg | `http://backend:8000` — internal Docker hostname |
-| `NEXT_PUBLIC_API_URL` | **Do not set** | Leave unset in Docker; browser uses same-origin `/api/v1/*` |
+| Variable              | Set by                         | Description                                                 |
+| --------------------- | ------------------------------ | ----------------------------------------------------------- |
+| `API_URL`             | `docker-compose.yml` build arg | `http://backend:8000` — internal Docker hostname            |
+| `NEXT_PUBLIC_API_URL` | **Do not set**                 | Leave unset in Docker; browser uses same-origin `/api/v1/*` |
 
 ### Frontend (local dev only)
 
@@ -715,9 +730,9 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 
 ### `docker-compose.yml` (base)
 
-| Service | Image / build | Port | Notes |
-|---------|---------------|------|-------|
-| `backend` | `backend/Dockerfile` (Python 3.12 + uv) | 8000 | FastAPI, reads `backend/.env` |
+| Service    | Image / build                               | Port | Notes                           |
+| ---------- | ------------------------------------------- | ---- | ------------------------------- |
+| `backend`  | `backend/Dockerfile` (Python 3.12 + uv)     | 8000 | FastAPI, reads `backend/.env`   |
 | `frontend` | `frontend/Dockerfile` (Node 20 multi-stage) | 3000 | Next.js standalone, proxies API |
 
 ### `docker-compose.prod.yml` (production override)
@@ -730,10 +745,10 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
 
 ### Dockerfiles
 
-| File | Base | Key details |
-|------|------|-------------|
-| `backend/Dockerfile` | `python:3.12-slim` | `uv sync --frozen`, health check on `/health` |
-| `frontend/Dockerfile` | `node:20-alpine` | Multi-stage build, `output: 'standalone'` |
+| File                  | Base               | Key details                                   |
+| --------------------- | ------------------ | --------------------------------------------- |
+| `backend/Dockerfile`  | `python:3.12-slim` | `uv sync --frozen`, health check on `/health` |
+| `frontend/Dockerfile` | `node:20-alpine`   | Multi-stage build, `output: 'standalone'`     |
 
 ### Files excluded from builds
 
@@ -864,30 +879,62 @@ curl -I http://127.0.0.1:3000
 sudo tail -20 /var/log/nginx/error.log
 ```
 
-### `failed to bind host port 3000` or `8000`
+### `failed to bind host port` / `address already in use`
 
-Another process (often PM2 or a previous deploy) holds the port:
+The backend failed to start, so `docker compose ps` shows **nothing** (containers are created then exit). Check stopped containers too:
 
 ```bash
+docker compose ps -a          # shows Exited containers
 sudo ss -tlnp | grep -E ':3000|:8000'
+```
+
+Something else is using the port (often PM2, a manual `uvicorn`, or a previous deploy):
+
+```bash
+pm2 list
 pm2 delete all 2>/dev/null || true
-docker compose down
+
+# Remove failed/partial containers
+docker compose -f docker-compose.yml -f docker-compose.prod.yml down
+
+# Kill a stray process on 8000 if needed (note the PID from ss output):
+# sudo kill <PID>
+
 docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
+docker compose ps
+```
+
+> **Production note:** `docker-compose.prod.yml` does **not** bind backend port 8000 on the host — only `127.0.0.1:3000` for Nginx. Backend is reached internally via the Docker network. After `git pull`, port 8000 conflicts should no longer block startup.
+
+Verify backend without a host port:
+
+```bash
+docker compose exec backend curl -sf http://127.0.0.1:8000/health
+# OR through the frontend proxy:
+curl -sf http://127.0.0.1:3000/api/v1/auth/login -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@stockpilot.com","password":"pass1234"}'
 ```
 
 ### Certbot: `Timeout during connect (likely firewall problem)`
 
-1. Fix `http://stockpilot.yourdomain.com` in a browser first
+1. Fix `http://abibas.kindycloud.uz` in a browser first
 2. Open port **80** in UFW and **AWS Security Group**
 3. Confirm DNS points to this server
 
 ### `docker compose: command not found`
 
 ```bash
-sudo apt install -y docker.io docker-compose-plugin
-# Log out and back in, then:
-docker compose version
+# Try in order — one of these will work on Ubuntu:
+sudo apt install -y docker-compose-v2    # Ubuntu 26.04+
+sudo apt install -y docker-compose-plugin  # Ubuntu 22.04 / 24.04
+sudo apt install -y docker-compose         # legacy fallback
+
+# Log out and back in, then verify:
+docker compose version || docker-compose --version
 ```
+
+If only `docker-compose` (hyphen) is installed, replace `docker compose` with `docker-compose` in all commands — same flags, same `docker-compose.yml` files.
 
 ### Docker permission denied
 
@@ -936,9 +983,9 @@ docker compose up -d frontend
 - [ ] `curl http://127.0.0.1:8000/health` returns StockPilot WMS ok
 - [ ] `bash scripts/test-stack.sh` passes
 - [ ] Nginx site enabled, default site removed
-- [ ] `http://stockpilot.yourdomain.com` shows login page
-- [ ] `sudo certbot --nginx -d stockpilot.yourdomain.com` succeeded
-- [ ] `https://stockpilot.yourdomain.com` works with padlock
+- [ ] `http://abibas.kindycloud.uz` shows login page
+- [ ] `sudo certbot --nginx -d abibas.kindycloud.uz` succeeded
+- [ ] `https://abibas.kindycloud.uz` works with padlock
 - [ ] `sudo certbot renew --dry-run` passes
 - [ ] (Optional) GitHub Actions secrets: `SSH_HOST`, `SSH_USER`, `SSH_KEY`, `DEPLOY_PATH`
 
@@ -946,16 +993,16 @@ docker compose up -d frontend
 
 ## Quick reference
 
-| What | Command / URL |
-|------|----------------|
-| Admin login | `admin@stockpilot.com` / `pass1234` |
-| Local start | `docker compose up --build -d` |
-| Production start | `docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d` |
-| Stop stack | `docker compose down` |
-| Logs | `docker compose logs -f` |
-| Migrate DB | `docker compose exec backend uv run alembic upgrade head` |
-| Deploy update | `git pull && docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d` |
-| Stack test | `bash scripts/test-stack.sh` |
-| Nginx config | `/etc/nginx/sites-available/stockpilot.yourdomain.com` |
-| SSL certs | `/etc/letsencrypt/live/stockpilot.yourdomain.com/` |
-| Swagger (tunnel) | `ssh -L 8000:127.0.0.1:8000 ubuntu@SERVER` → `http://localhost:8000/docs` |
+| What             | Command / URL                                                                               |
+| ---------------- | ------------------------------------------------------------------------------------------- |
+| Admin login      | `admin@stockpilot.com` / `pass1234`                                                         |
+| Local start      | `docker compose up --build -d`                                                              |
+| Production start | `docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d`             |
+| Stop stack       | `docker compose down`                                                                       |
+| Logs             | `docker compose logs -f`                                                                    |
+| Migrate DB       | `docker compose exec backend uv run alembic upgrade head`                                   |
+| Deploy update    | `git pull && docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d` |
+| Stack test       | `bash scripts/test-stack.sh`                                                                |
+| Nginx config     | `/etc/nginx/sites-available/abibas.kindycloud.uz`                                           |
+| SSL certs        | `/etc/letsencrypt/live/abibas.kindycloud.uz/`                                               |
+| Swagger (tunnel) | `ssh -L 8000:127.0.0.1:8000 ubuntu@SERVER` → `http://localhost:8000/docs`                   |
