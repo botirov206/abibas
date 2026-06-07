@@ -26,6 +26,18 @@ check() {
   fi
 }
 
+# Parse access_token from JSON (python3 on servers; node on dev machines)
+extract_token() {
+  local body="$1"
+  if command -v python3 >/dev/null 2>&1; then
+    echo "$body" | python3 -c "import sys, json; print(json.load(sys.stdin)['access_token'])"
+  elif command -v node >/dev/null 2>&1; then
+    echo "$body" | node -pe "JSON.parse(require('fs').readFileSync(0,'utf8')).access_token"
+  else
+    echo "$body" | grep -o '"access_token":"[^"]*"' | head -1 | sed 's/"access_token":"//;s/"$//'
+  fi
+}
+
 # POST /auth/login and print access_token, or explain failure on stderr
 get_token() {
   local email="$1"
@@ -51,8 +63,8 @@ get_token() {
     return 1
   fi
 
-  token=$(echo "$body" | node -pe "JSON.parse(require('fs').readFileSync(0,'utf8')).access_token" 2>/dev/null) || {
-    echo "  login $email: invalid JSON response — $body" >&2
+  token=$(extract_token "$body") || {
+    echo "  login $email: could not parse access_token — $body" >&2
     return 1
   }
   echo "$token"
