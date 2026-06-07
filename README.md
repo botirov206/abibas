@@ -81,7 +81,7 @@ cp backend/.env.example backend/.env
 
 docker compose up --build -d          # local
 # Production server:
-# docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
+# docker compose -f docker-compose.prod.yml up --build -d
 
 # First deploy only — run migrations + seed inside the backend container
 docker compose exec backend uv run alembic upgrade head

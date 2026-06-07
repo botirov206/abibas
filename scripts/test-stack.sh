@@ -1,10 +1,18 @@
 #!/usr/bin/env bash
 set -uo pipefail
 
-API="${API_URL:-http://localhost:8000}"
-FE="${FE_URL:-http://localhost:3000}"
+FE="${FE_URL:-http://127.0.0.1:3000}"
 PASS=0
 FAIL=0
+
+# Production: backend has no host port — route API through the frontend proxy.
+if [ -n "${API_URL:-}" ]; then
+  API="$API_URL"
+elif curl -sf --connect-timeout 2 "http://127.0.0.1:8000/health" 2>/dev/null | grep -q 'StockPilot WMS'; then
+  API="http://127.0.0.1:8000"
+else
+  API="$FE"
+fi
 
 check() {
   local name="$1"
@@ -54,8 +62,12 @@ echo "=== StockPilot WMS Stack Test ==="
 echo "API: $API | Frontend: $FE"
 echo ""
 
-# Health
-check "Backend health" "curl -sf '$API/health' | grep -q 'StockPilot WMS'"
+# Health — direct /health in dev; via login proxy in production
+if [ "$API" = "$FE" ]; then
+  check "Backend health (via frontend proxy)" "curl -sf -X POST '$API/api/v1/auth/login' -H 'Content-Type: application/json' -d '{\"email\":\"admin@stockpilot.com\",\"password\":\"pass1234\"}' | grep -q 'access_token'"
+else
+  check "Backend health" "curl -sf '$API/health' | grep -q 'StockPilot WMS'"
+fi
 
 # Login (FastAPI returns access_token at top level)
 TOKEN=""

@@ -22,7 +22,7 @@ jobs:
           script: |
             cd ${{ secrets.DEPLOY_PATH }}
             git pull origin main
-            docker compose -f docker-compose.yml -f docker-compose.prod.yml pull 2>/dev/null || true
-            docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
+            docker compose -f docker-compose.prod.yml pull 2>/dev/null || true
+            docker compose -f docker-compose.prod.yml up --build -d
             docker compose exec -T backend uv run alembic upgrade head
             docker compose ps

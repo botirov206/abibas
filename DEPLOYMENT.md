@@ -421,7 +421,7 @@ pm2 delete all 2>/dev/null || true
 sudo ss -tlnp | grep -E ':3000|:8000' || true
 
 # Build and start — production override binds ports to localhost only
-docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
+docker compose -f docker-compose.prod.yml up --build -d
 
 # Check status — both should be "Up (healthy)"
 docker compose ps
@@ -440,7 +440,7 @@ docker compose exec backend uv run python -m app.db.seed
 
 ```bash
 # Backend health (inside container — prod does not expose :8000 on host)
-docker compose exec backend curl -sf http://127.0.0.1:8000/health
+docker compose -f docker-compose.prod.yml exec backend uv run python -c "import urllib.request; print(urllib.request.urlopen('http://127.0.0.1:8000/health').read().decode())"
 # Expected: {"status":"ok","service":"StockPilot WMS"}
 
 # Frontend responding
@@ -629,7 +629,7 @@ Trigger manually: GitHub → **Actions** → **Deploy** → **Run workflow**
 ```bash
 cd /var/www/abibas
 git pull origin main
-docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
+docker compose -f docker-compose.prod.yml up --build -d
 docker compose exec -T backend uv run alembic upgrade head
 docker compose ps
 ```
@@ -658,7 +658,7 @@ docker compose restart frontend
 #### Rebuild after code changes
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
+docker compose -f docker-compose.prod.yml up --build -d
 ```
 
 #### Stop everything
@@ -735,13 +735,15 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 | `backend`  | `backend/Dockerfile` (Python 3.12 + uv)     | 8000 | FastAPI, reads `backend/.env`   |
 | `frontend` | `frontend/Dockerfile` (Node 20 multi-stage) | 3000 | Next.js standalone, proxies API |
 
-### `docker-compose.prod.yml` (production override)
+### `docker-compose.prod.yml` (production — standalone)
 
-Binds ports to `127.0.0.1` only — containers are not reachable from the public internet.
+Complete production stack. Backend has **no host port**; frontend binds `127.0.0.1:3000` only for Nginx.
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
+docker compose -f docker-compose.prod.yml up --build -d
 ```
+
+Do **not** merge with `docker-compose.yml` on the server — use this file alone.
 
 ### Dockerfiles
 
@@ -785,7 +787,7 @@ docker compose build backend
 docker compose up -d backend
 docker builder prune -af
 docker compose build frontend
-docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+docker compose -f docker-compose.prod.yml up -d
 docker compose ps
 ```
 
@@ -895,12 +897,12 @@ pm2 list
 pm2 delete all 2>/dev/null || true
 
 # Remove failed/partial containers
-docker compose -f docker-compose.yml -f docker-compose.prod.yml down
+docker compose -f docker-compose.prod.yml down
 
 # Kill a stray process on 8000 if needed (note the PID from ss output):
 # sudo kill <PID>
 
-docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
+docker compose -f docker-compose.prod.yml up --build -d
 docker compose ps
 ```
 
@@ -909,7 +911,7 @@ docker compose ps
 Verify backend without a host port:
 
 ```bash
-docker compose exec backend curl -sf http://127.0.0.1:8000/health
+docker compose -f docker-compose.prod.yml exec backend uv run python -c "import urllib.request; print(urllib.request.urlopen('http://127.0.0.1:8000/health').read().decode())"
 # OR through the frontend proxy:
 curl -sf http://127.0.0.1:3000/api/v1/auth/login -X POST \
   -H "Content-Type: application/json" \
@@ -977,10 +979,10 @@ docker compose up -d frontend
 - [ ] Docker installed, `ubuntu` in `docker` group
 - [ ] GitHub deploy key → server can `git clone` / `git pull`
 - [ ] `backend/.env` configured (`DATABASE_URL`, `SECRET_KEY`)
-- [ ] `docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d` — both containers Up (healthy)
+- [ ] `docker compose -f docker-compose.prod.yml up --build -d` — both containers Up (healthy)
 - [ ] `docker compose exec backend uv run alembic upgrade head` succeeded
 - [ ] `docker compose exec backend uv run python -m app.db.seed` (first deploy only)
-- [ ] `curl http://127.0.0.1:8000/health` returns StockPilot WMS ok
+- [ ] Backend health OK (`docker compose -f docker-compose.prod.yml exec backend uv run python -c "..."` or `curl -I http://127.0.0.1:3000`)
 - [ ] `bash scripts/test-stack.sh` passes
 - [ ] Nginx site enabled, default site removed
 - [ ] `http://abibas.kindycloud.uz` shows login page
@@ -997,11 +999,11 @@ docker compose up -d frontend
 | ---------------- | ------------------------------------------------------------------------------------------- |
 | Admin login      | `admin@stockpilot.com` / `pass1234`                                                         |
 | Local start      | `docker compose up --build -d`                                                              |
-| Production start | `docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d`             |
+| Production start | `docker compose -f docker-compose.prod.yml up --build -d`             |
 | Stop stack       | `docker compose down`                                                                       |
 | Logs             | `docker compose logs -f`                                                                    |
 | Migrate DB       | `docker compose exec backend uv run alembic upgrade head`                                   |
-| Deploy update    | `git pull && docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d` |
+| Deploy update    | `git pull && docker compose -f docker-compose.prod.yml up --build -d` |
 | Stack test       | `bash scripts/test-stack.sh`                                                                |
 | Nginx config     | `/etc/nginx/sites-available/abibas.kindycloud.uz`                                           |
 | SSL certs        | `/etc/letsencrypt/live/abibas.kindycloud.uz/`                                               |

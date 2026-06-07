@@ -1,13 +1,31 @@
-# Production override — only frontend is reachable from the host.
-# Nginx proxies to 127.0.0.1:3000; backend stays on the Docker network only.
+# Production stack — standalone file (no merge with docker-compose.yml).
+# Backend is internal-only; Nginx proxies to 127.0.0.1:3000.
 #
 # Usage:
-#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
+#   docker compose -f docker-compose.prod.yml up --build -d
 
 services:
   backend:
-    ports: !reset []
+    build: ./backend
+    restart: unless-stopped
+    env_file: ./backend/.env
+    environment:
+      PORT: 8000
+    networks:
+      - app
 
   frontend:
-    ports: !reset
+    build:
+      context: ./frontend
+      args:
+        API_URL: http://backend:8000
+    restart: unless-stopped
+    ports:
       - '127.0.0.1:3000:3000'
+    depends_on:
+      - backend
+    networks:
+      - app
+
+networks:
+  app:
