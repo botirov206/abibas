@@ -1,0 +1,35 @@
+@import url('https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700,800&display=swap');
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: 'General Sans', ui-sans-serif, system-ui, sans-serif;
+  --color-brand-black: #090909;
+  --color-brand-yellow: #EBF05B;
+  --color-brand-teal: #409C9B;
+  --color-brand-muted: #788596;
+  --color-brand-bg: #F9F9FB;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: #F9F9FB;
+  color: #090909;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #e2e5ea;
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #c8cdd4;
+}

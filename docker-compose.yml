@@ -1,0 +1,27 @@
+services:
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    env_file: ./backend/.env
+    environment:
+      PORT: 8000
+    ports:
+      - '8000:8000'
+    networks:
+      - app
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        API_URL: http://backend:8000
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    depends_on:
+      - backend
+    networks:
+      - app
+
+networks:
+  app:

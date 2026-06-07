@@ -1,0 +1,14 @@
+# Production override — bind container ports to localhost only.
+# Nginx on the host proxies to 127.0.0.1:3000; backend stays internal.
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
+
+services:
+  backend:
+    ports:
+      - '127.0.0.1:8000:8000'
+
+  frontend:
+    ports:
+      - '127.0.0.1:3000:3000'
