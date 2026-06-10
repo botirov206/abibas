@@ -66,10 +66,18 @@ def _enrich_batch(batch: InventoryBatch, session) -> BatchOut:
     )
 
 
-@router.get("/inventory", response_model=List[BatchOut])
+@router.get(
+    "/inventory",
+    response_model=List[BatchOut],
+    dependencies=[require_roles(
+        UserRole.ADMIN,
+        UserRole.MANAGER,
+        UserRole.WAREHOUSE_OPERATOR,
+        UserRole.QC_INSPECTOR,
+    )],
+)
 def list_inventory(
     session: SessionDep,
-    current_user: CurrentUser,
     quality_status: Optional[str] = None,
     product_id: Optional[int] = None,
 ):
@@ -82,8 +90,17 @@ def list_inventory(
     return [_enrich_batch(b, session) for b in batches]
 
 
-@router.get("/inventory/alerts", response_model=List[AlertOut])
-def inventory_alerts(session: SessionDep, current_user: CurrentUser):
+@router.get(
+    "/inventory/alerts",
+    response_model=List[AlertOut],
+    dependencies=[require_roles(
+        UserRole.ADMIN,
+        UserRole.MANAGER,
+        UserRole.WAREHOUSE_OPERATOR,
+        UserRole.QC_INSPECTOR,
+    )],
+)
+def inventory_alerts(session: SessionDep):
     products = session.exec(select(Product).where(Product.is_active == True)).all()
     alerts = []
     for p in products:

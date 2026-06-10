@@ -2,7 +2,8 @@ from fastapi import APIRouter
 from sqlmodel import select, func
 from pydantic import BaseModel
 from typing import List
-from app.core.deps import SessionDep, CurrentUser
+from app.core.deps import SessionDep, require_roles
+from app.models.user import UserRole
 from app.models.product import Product
 from app.models.inventory import InventoryBatch, QualityStatus
 from app.models.purchase_order import PurchaseOrder, POStatus
@@ -27,8 +28,18 @@ class DashboardOut(BaseModel):
     movement_summary: List[MovementSummary]
 
 
-@router.get("", response_model=DashboardOut)
-def get_dashboard(session: SessionDep, current_user: CurrentUser):
+@router.get(
+    "",
+    response_model=DashboardOut,
+    dependencies=[require_roles(
+        UserRole.ADMIN,
+        UserRole.MANAGER,
+        UserRole.WAREHOUSE_OPERATOR,
+        UserRole.PROCUREMENT,
+        UserRole.QC_INSPECTOR,
+    )],
+)
+def get_dashboard(session: SessionDep):
     total_products = len(session.exec(select(Product).where(Product.is_active == True)).all())
 
     batches = session.exec(select(InventoryBatch)).all()

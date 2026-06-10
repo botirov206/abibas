@@ -2,7 +2,7 @@ from typing import List, Optional
 from fastapi import APIRouter, HTTPException
 from sqlmodel import select
 from pydantic import BaseModel
-from app.core.deps import SessionDep, CurrentUser, require_roles
+from app.core.deps import SessionDep, require_roles
 from app.models.product import Category, Supplier, Product, ProductSpec
 from app.models.user import UserRole
 
@@ -52,13 +52,23 @@ class SpecCreate(BaseModel):
     spec_value: str
 
 
-@router.get("/categories", response_model=List[CategoryOut])
-def list_categories(session: SessionDep, current_user: CurrentUser):
+@router.get(
+    "/categories",
+    response_model=List[CategoryOut],
+    dependencies=[require_roles(
+        UserRole.ADMIN,
+        UserRole.MANAGER,
+        UserRole.WAREHOUSE_OPERATOR,
+        UserRole.PROCUREMENT,
+        UserRole.QC_INSPECTOR,
+    )],
+)
+def list_categories(session: SessionDep):
     cats = session.exec(select(Category)).all()
     return [CategoryOut(**c.model_dump()) for c in cats]
 
 
-@router.post("/categories", response_model=CategoryOut, dependencies=[require_roles(UserRole.ADMIN)])
+@router.post("/categories", response_model=CategoryOut, dependencies=[require_roles(UserRole.ADMIN, UserRole.PROCUREMENT)])
 def create_category(body: CategoryOut, session: SessionDep):
     cat = Category(name=body.name, parent_id=body.parent_id)
     session.add(cat)
@@ -67,8 +77,18 @@ def create_category(body: CategoryOut, session: SessionDep):
     return CategoryOut(**cat.model_dump())
 
 
-@router.get("/products", response_model=List[ProductOut])
-def list_products(session: SessionDep, current_user: CurrentUser, search: Optional[str] = None):
+@router.get(
+    "/products",
+    response_model=List[ProductOut],
+    dependencies=[require_roles(
+        UserRole.ADMIN,
+        UserRole.MANAGER,
+        UserRole.WAREHOUSE_OPERATOR,
+        UserRole.PROCUREMENT,
+        UserRole.QC_INSPECTOR,
+    )],
+)
+def list_products(session: SessionDep, search: Optional[str] = None):
     stmt = select(Product).where(Product.is_active == True)
     products = session.exec(stmt).all()
     if search:
@@ -100,8 +120,18 @@ def create_product(body: ProductCreate, session: SessionDep):
     return ProductOut(**product.model_dump(), specs=[])
 
 
-@router.get("/products/{product_id}", response_model=ProductOut)
-def get_product(product_id: int, session: SessionDep, current_user: CurrentUser):
+@router.get(
+    "/products/{product_id}",
+    response_model=ProductOut,
+    dependencies=[require_roles(
+        UserRole.ADMIN,
+        UserRole.MANAGER,
+        UserRole.WAREHOUSE_OPERATOR,
+        UserRole.PROCUREMENT,
+        UserRole.QC_INSPECTOR,
+    )],
+)
+def get_product(product_id: int, session: SessionDep):
     product = session.get(Product, product_id)
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")

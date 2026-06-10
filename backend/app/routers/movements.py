@@ -39,8 +39,16 @@ class MovementCreate(BaseModel):
     notes: Optional[str] = None
 
 
-@router.get("", response_model=List[MovementOut])
-def list_movements(session: SessionDep, current_user: CurrentUser, limit: int = 50):
+@router.get(
+    "",
+    response_model=List[MovementOut],
+    dependencies=[require_roles(
+        UserRole.ADMIN,
+        UserRole.MANAGER,
+        UserRole.WAREHOUSE_OPERATOR,
+    )],
+)
+def list_movements(session: SessionDep, limit: int = 50):
     movements = session.exec(
         select(StockMovement).order_by(StockMovement.created_at.desc()).limit(limit)
     ).all()
