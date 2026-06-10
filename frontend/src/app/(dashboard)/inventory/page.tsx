@@ -7,10 +7,12 @@ import Topbar from '@/components/Topbar';
 import StatusBadge from '@/components/StatusBadge';
 import EmptyState from '@/components/EmptyState';
 import { Store01Icon, FilterIcon } from 'hugeicons-react';
+import { useRequireRole } from '@/lib/auth';
 
 const statusFilters = ['ALL', 'RELEASED', 'QUARANTINE', 'PASSED', 'FAILED'];
 
 export default function InventoryPage() {
+  useRequireRole(['ADMIN', 'MANAGER', 'WAREHOUSE_OPERATOR', 'QC_INSPECTOR']);
   const [statusFilter, setStatusFilter] = useState('ALL');
 
   const { data: batches = [], isLoading } = useQuery<InventoryBatch[]>({

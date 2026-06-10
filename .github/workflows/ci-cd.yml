@@ -26,7 +26,7 @@ jobs:
           context: ./backend
           push: false
           load: true
-          tags: stockpilot-backend:ci
+          tags: abibas-backend:ci
           cache-from: type=gha,scope=backend
           cache-to: type=gha,mode=max,scope=backend
 
@@ -48,7 +48,7 @@ jobs:
           context: ./frontend
           push: false
           load: true
-          tags: stockpilot-frontend:ci
+          tags: abibas-frontend:ci
           build-args: |
             API_URL=http://backend:8000
           cache-from: type=gha,scope=frontend
@@ -79,7 +79,7 @@ jobs:
             cd ${{ vars.DEPLOY_PATH }}
 
             echo "──────────────────────────────────────"
-            echo " StockPilot WMS — Deploying..."
+            echo " Abibas WMS — Deploying..."
             echo " Commit: ${{ github.sha }}"
             echo " Triggered by: ${{ github.actor }}"
             echo "──────────────────────────────────────"

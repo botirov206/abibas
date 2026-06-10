@@ -8,6 +8,7 @@ import {
   ArrowUp01Icon,
 } from 'hugeicons-react';
 import { useAuth } from '@/lib/auth';
+import { UserRole } from '@/types';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,15 +19,15 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 const navItems = [
-  { href: '/dashboard',       icon: DashboardSquare01Icon, label: 'Dashboard' },
-  { href: '/products',        icon: Package01Icon,          label: 'Products' },
-  { href: '/inventory',       icon: Store01Icon,            label: 'Inventory' },
-  { href: '/suppliers',       icon: Building04Icon,         label: 'Suppliers' },
-  { href: '/purchase-orders', icon: ClipboardIcon,          label: 'Purchase Orders' },
-  { href: '/sales-orders',    icon: ShoppingBag01Icon,      label: 'Sales Orders' },
-  { href: '/quality',         icon: Shield01Icon,           label: 'Quality Control' },
-  { href: '/movements',       icon: ArrowLeftRightIcon,     label: 'Movements' },
-  { href: '/alerts',          icon: Notification03Icon,     label: 'Alerts' },
+  { href: '/dashboard',       icon: DashboardSquare01Icon, label: 'Dashboard',       roles: ['ADMIN','MANAGER','WAREHOUSE_OPERATOR','PROCUREMENT','QC_INSPECTOR'] },
+  { href: '/products',        icon: Package01Icon,          label: 'Products',        roles: ['ADMIN','MANAGER','WAREHOUSE_OPERATOR','PROCUREMENT','QC_INSPECTOR'] },
+  { href: '/inventory',       icon: Store01Icon,            label: 'Inventory',       roles: ['ADMIN','MANAGER','WAREHOUSE_OPERATOR','QC_INSPECTOR'] },
+  { href: '/suppliers',       icon: Building04Icon,         label: 'Suppliers',       roles: ['ADMIN','MANAGER','PROCUREMENT'] },
+  { href: '/purchase-orders', icon: ClipboardIcon,          label: 'Purchase Orders', roles: ['ADMIN','MANAGER','PROCUREMENT'] },
+  { href: '/sales-orders',    icon: ShoppingBag01Icon,      label: 'Sales Orders',    roles: ['ADMIN','MANAGER'] },
+  { href: '/quality',         icon: Shield01Icon,           label: 'Quality Control', roles: ['ADMIN','MANAGER','QC_INSPECTOR'] },
+  { href: '/movements',       icon: ArrowLeftRightIcon,     label: 'Movements',       roles: ['ADMIN','MANAGER','WAREHOUSE_OPERATOR'] },
+  { href: '/alerts',          icon: Notification03Icon,     label: 'Alerts',          roles: ['ADMIN','MANAGER','WAREHOUSE_OPERATOR','QC_INSPECTOR'] },
 ];
 
 const adminItems = [
@@ -55,7 +56,7 @@ export default function Sidebar() {
           <FlashIcon size={18} primaryColor="#090909" />
         </div>
         <div>
-          <p className="text-brand-black font-bold text-base leading-tight">StockPilot</p>
+          <p className="text-brand-black font-bold text-base leading-tight">Abibas</p>
           <p className="text-brand-muted text-[11px] font-medium tracking-wide">WMS</p>
         </div>
       </div>
@@ -65,7 +66,7 @@ export default function Sidebar() {
         <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-widest text-brand-muted/50">
           Main Menu
         </p>
-        {navItems.map(({ href, icon: Icon, label }) => (
+        {navItems.filter(item => user?.role && item.roles.includes(user.role)).map(({ href, icon: Icon, label }) => (
           <Link
             key={href}
             href={href}

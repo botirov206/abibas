@@ -7,7 +7,7 @@ import Topbar from '@/components/Topbar';
 import Modal from '@/components/Modal';
 import EmptyState from '@/components/EmptyState';
 import { Building04Icon, PlusSignIcon, Mail01Icon, SmartPhone01Icon, Clock01Icon } from 'hugeicons-react';
-import { useAuth } from '@/lib/auth';
+import { useAuth, useRequireRole } from '@/lib/auth';
 
 const leadTimeBadge = (days: number) => {
   if (days <= 3) return 'bg-brand-teal/10 text-brand-teal';
@@ -18,6 +18,7 @@ const leadTimeBadge = (days: number) => {
 const countryFlag: Record<string, string> = { UK: '🇬🇧', US: '🇺🇸', DE: '🇩🇪', CN: '🇨🇳', JP: '🇯🇵' };
 
 export default function SuppliersPage() {
+  useRequireRole(['ADMIN', 'MANAGER', 'PROCUREMENT']);
   const { user } = useAuth();
   const qc = useQueryClient();
   const [showAdd, setShowAdd] = useState(false);

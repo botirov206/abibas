@@ -1,4 +1,4 @@
-# StockPilot WMS — Implementation Plan
+# Abibas WMS — Implementation Plan
 
 > Tick each box as you complete it. This file is the source of truth when switching between Claude Code and Cursor.
 > Both AIs should read this file at the start of every session for full context.
@@ -58,7 +58,7 @@ Complete these **before** AWS (Phase 8). Nothing in Phase 8 should be started un
 
 | Item | Status | Notes |
 |---|---|---|
-| `scripts/test-stack.sh` | ✅ Created | Port 8000, StockPilot credentials |
+| `scripts/test-stack.sh` | ✅ Created | Port 8000, Abibas credentials |
 | Root `README.md` | ✅ Created | Dev + Docker quick start |
 | `DEPLOYMENT.md` | ✅ Created | Full Nginx + HTTPS server guide |
 
@@ -261,7 +261,7 @@ touch app/models/__init__.py app/routers/__init__.py
 
 ### 1.4 Verify
 - [x] `uv run uvicorn app.main:app --reload --port 8000`
-- [x] `curl http://localhost:8000/health` → `{"status":"ok","service":"StockPilot WMS"}`
+- [x] `curl http://localhost:8000/health` → `{"status":"ok","service":"Abibas WMS"}`
 - [x] `http://localhost:8000/docs` → Swagger UI loads
 
 ---
@@ -352,8 +352,8 @@ uv run alembic upgrade head
 - [x] `/health` inline route
 
 ### 4.4 Verify
-- [x] `curl http://localhost:8000/health` → `{"status":"ok","service":"StockPilot WMS"}`
-- [x] `POST /api/v1/auth/login` (admin@stockpilot.com / pass1234) → JWT ✓
+- [x] `curl http://localhost:8000/health` → `{"status":"ok","service":"Abibas WMS"}`
+- [x] `POST /api/v1/auth/login` (admin@Abibas.com / pass1234) → JWT ✓
 - [x] `GET /api/v1/inventory/alerts` with JWT → low-stock batches
 - [x] `GET /api/v1/quality` with JWT → quarantine batches
 - [x] `GET /api/v1/dashboard` → KPI totals
@@ -470,7 +470,7 @@ services:
 
 ## Phase 7 — GitHub Actions CI/CD
 
-- [ ] Create GitHub repo `stockpilot-wms` (or `abibas`)
+- [ ] Create GitHub repo `Abibas-wms` (or `abibas`)
 - [ ] Write `.github/workflows/deploy.yml`:
   - Trigger: push to `main`
   - Steps: checkout → AWS credentials → ECR login → build+push backend image → build+push frontend image → SSH into EC2 → `docker compose pull && docker compose up -d`
@@ -549,19 +549,19 @@ export default function () {
 
 | Role | Email | Password |
 |---|---|---|
-| ADMIN | admin@stockpilot.com | pass1234 |
-| WAREHOUSE_OPERATOR | operator@stockpilot.com | pass1234 |
-| PROCUREMENT | procurement@stockpilot.com | pass1234 |
-| QC_INSPECTOR | qc@stockpilot.com | pass1234 |
-| MANAGER | manager@stockpilot.com | pass1234 |
+| ADMIN | admin@Abibas.com | pass1234 |
+| WAREHOUSE_OPERATOR | operator@Abibas.com | pass1234 |
+| PROCUREMENT | procurement@Abibas.com | pass1234 |
+| QC_INSPECTOR | qc@Abibas.com | pass1234 |
+| MANAGER | manager@Abibas.com | pass1234 |
 
 ---
 
 ## Verification Checklist
 
 ### Local dev (Phases 1–5) — done
-- [x] `curl http://localhost:8000/health` → `{"status":"ok","service":"StockPilot WMS"}`
-- [x] `POST /api/v1/auth/login` (admin@stockpilot.com / pass1234) → JWT returned
+- [x] `curl http://localhost:8000/health` → `{"status":"ok","service":"Abibas WMS"}`
+- [x] `POST /api/v1/auth/login` (admin@Abibas.com / pass1234) → JWT returned
 - [x] `GET /api/v1/inventory/alerts` with JWT → low-stock items listed
 - [x] `GET /api/v1/quality` with JWT → quarantine batches listed
 - [x] `GET /api/v1/dashboard` → KPI totals
@@ -589,8 +589,8 @@ export default function () {
 - [x] Phase 7 (partial): `.github/workflows/deploy.yml` created
 
 ### Verified endpoints (local dev, 2026-06-05)
-  - `curl /health` → `{"status":"ok","service":"StockPilot WMS"}` ✓
-  - `POST /api/v1/auth/login` (admin@stockpilot.com / pass1234) → JWT ✓
+  - `curl /health` → `{"status":"ok","service":"Abibas WMS"}` ✓
+  - `POST /api/v1/auth/login` (admin@Abibas.com / pass1234) → JWT ✓
   - `GET /api/v1/dashboard` → 10 products, 6696 stock units, 3 quarantine batches ✓
   - `GET /api/v1/quality` → 3 quarantine batches (Arduino, RPI4, ESP32) ✓
   - `GET /api/v1/inventory/alerts` → 4 low-stock items ✓

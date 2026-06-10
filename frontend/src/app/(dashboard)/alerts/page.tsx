@@ -6,8 +6,10 @@ import Topbar from '@/components/Topbar';
 import EmptyState from '@/components/EmptyState';
 import { AlertDiamondIcon, Notification03Icon, ShoppingBag01Icon } from 'hugeicons-react';
 import Link from 'next/link';
+import { useRequireRole } from '@/lib/auth';
 
 export default function AlertsPage() {
+  useRequireRole(['ADMIN', 'MANAGER', 'WAREHOUSE_OPERATOR', 'QC_INSPECTOR']);
   const { data: alerts = [], isLoading } = useQuery<AlertItem[]>({
     queryKey: ['alerts'],
     queryFn: () => api.get('/api/v1/inventory/alerts').then((r) => r.data),

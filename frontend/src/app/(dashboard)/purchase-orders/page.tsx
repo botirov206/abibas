@@ -8,11 +8,12 @@ import Modal from '@/components/Modal';
 import StatusBadge from '@/components/StatusBadge';
 import EmptyState from '@/components/EmptyState';
 import { ClipboardIcon, PlusSignIcon, ArrowDown01Icon, ArrowUp01Icon, Delete01Icon } from 'hugeicons-react';
-import { useAuth } from '@/lib/auth';
+import { useAuth, useRequireRole } from '@/lib/auth';
 
 const statusTabs = ['ALL', 'DRAFT', 'SENT', 'PARTIALLY_RECEIVED', 'RECEIVED', 'CANCELLED'];
 
 export default function PurchaseOrdersPage() {
+  useRequireRole(['ADMIN', 'MANAGER', 'PROCUREMENT']);
   const { user } = useAuth();
   const qc = useQueryClient();
   const [tab, setTab] = useState('ALL');

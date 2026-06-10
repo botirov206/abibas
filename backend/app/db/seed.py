@@ -19,11 +19,11 @@ def seed():
         # ── Users ─────────────────────────────────────────────────────────
         pw = hash_password("pass1234")
         users = [
-            User(name="Admin User",       email="admin@stockpilot.com",       password_hash=pw, role=UserRole.ADMIN),
-            User(name="Jack Operator",    email="operator@stockpilot.com",    password_hash=pw, role=UserRole.WAREHOUSE_OPERATOR),
-            User(name="Sara Procurement", email="procurement@stockpilot.com", password_hash=pw, role=UserRole.PROCUREMENT),
-            User(name="Lin QC",           email="qc@stockpilot.com",          password_hash=pw, role=UserRole.QC_INSPECTOR),
-            User(name="Tom Manager",      email="manager@stockpilot.com",     password_hash=pw, role=UserRole.MANAGER),
+            User(name="Admin User",       email="admin@abibas.com",       password_hash=pw, role=UserRole.ADMIN),
+            User(name="Jack Operator",    email="operator@abibas.com",    password_hash=pw, role=UserRole.WAREHOUSE_OPERATOR),
+            User(name="Sara Procurement", email="procurement@abibas.com", password_hash=pw, role=UserRole.PROCUREMENT),
+            User(name="Lin QC",           email="qc@abibas.com",          password_hash=pw, role=UserRole.QC_INSPECTOR),
+            User(name="Tom Manager",      email="manager@abibas.com",     password_hash=pw, role=UserRole.MANAGER),
         ]
         for u in users:
             s.add(u)

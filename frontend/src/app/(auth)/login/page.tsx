@@ -56,7 +56,7 @@ export default function LoginPage() {
             <div className="w-10 h-10 rounded-xl bg-brand-yellow flex items-center justify-center">
               <FlashIcon size={22} primaryColor="#090909" />
             </div>
-            <span className="text-white font-bold text-xl">StockPilot WMS</span>
+            <span className="text-white font-bold text-xl">Abibas WMS</span>
           </div>
           <h2 className="text-4xl font-bold text-white leading-tight mb-4">
             Electronics &<br />Hardware Warehouse<br />
@@ -89,7 +89,7 @@ export default function LoginPage() {
             <div className="w-9 h-9 rounded-xl bg-brand-yellow flex items-center justify-center">
               <FlashIcon size={18} primaryColor="#090909" />
             </div>
-            <span className="font-bold text-lg text-brand-black">StockPilot WMS</span>
+            <span className="font-bold text-lg text-brand-black">Abibas WMS</span>
           </div>
 
           <h1 className="text-3xl font-bold text-brand-black mb-2">Welcome back</h1>
@@ -109,7 +109,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                placeholder="admin@stockpilot.com"
+                placeholder="admin@abibas.com"
                 className="w-full bg-brand-bg border border-gray-200 rounded-2xl px-4 py-3 text-sm text-brand-black placeholder:text-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-yellow focus:border-brand-yellow transition-all"
               />
             </div>
@@ -149,9 +149,9 @@ export default function LoginPage() {
           <div className="mt-8 p-4 bg-brand-bg rounded-3xl border border-gray-100">
             <p className="text-xs font-semibold text-brand-muted mb-2">Demo credentials</p>
             {[
-              { role: 'Admin', email: 'admin@stockpilot.com' },
-              { role: 'Operator', email: 'operator@stockpilot.com' },
-              { role: 'QC Inspector', email: 'qc@stockpilot.com' },
+              { role: 'Admin', email: 'admin@abibas.com' },
+              { role: 'Operator', email: 'operator@abibas.com' },
+              { role: 'QC Inspector', email: 'qc@abibas.com' },
             ].map((c) => (
               <button
                 key={c.email}

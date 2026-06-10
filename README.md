@@ -1,4 +1,4 @@
-# StockPilot WMS (abibas)
+# Abibas WMS (abibas)
 
 Cloud-native Warehouse Management System for electronics and hardware distribution — procurement, bin-level inventory, QC inspections, and supplier management.
 
@@ -53,11 +53,11 @@ App: `http://localhost:3000`
 
 | Role | Email | Password |
 |------|-------|----------|
-| Admin | admin@stockpilot.com | pass1234 |
-| Warehouse Operator | operator@stockpilot.com | pass1234 |
-| Procurement | procurement@stockpilot.com | pass1234 |
-| QC Inspector | qc@stockpilot.com | pass1234 |
-| Manager | manager@stockpilot.com | pass1234 |
+| Admin | admin@Abibas.com | pass1234 |
+| Warehouse Operator | operator@Abibas.com | pass1234 |
+| Procurement | procurement@Abibas.com | pass1234 |
+| QC Inspector | qc@Abibas.com | pass1234 |
+| Manager | manager@Abibas.com | pass1234 |
 
 ## Test the full stack
 

@@ -8,7 +8,7 @@ import Modal from '@/components/Modal';
 import StatusBadge from '@/components/StatusBadge';
 import EmptyState from '@/components/EmptyState';
 import { ShoppingBag01Icon, PlusSignIcon, ArrowDown01Icon, ArrowUp01Icon, Delete01Icon } from 'hugeicons-react';
-import { useAuth } from '@/lib/auth';
+import { useAuth, useRequireRole } from '@/lib/auth';
 
 const statusTabs = ['ALL', 'PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'];
 const nextStatuses: Record<string, string[]> = {
@@ -20,6 +20,7 @@ const nextStatuses: Record<string, string[]> = {
 };
 
 export default function SalesOrdersPage() {
+  useRequireRole(['ADMIN', 'MANAGER']);
   const { user } = useAuth();
   const qc = useQueryClient();
   const [tab, setTab] = useState('ALL');

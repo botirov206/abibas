@@ -3,7 +3,7 @@ import './globals.css';
 import Providers from '@/components/Providers';
 
 export const metadata: Metadata = {
-  title: 'StockPilot WMS',
+  title: 'Abibas WMS',
   description: 'Electronics & Hardware Warehouse Management System',
 };
 

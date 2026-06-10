@@ -11,7 +11,7 @@ import {
   ArrowLeftRightIcon, PackageAddIcon, PackageRemove01Icon, RotateLeft01Icon,
   SlidersHorizontalIcon, PlusSignIcon,
 } from 'hugeicons-react';
-import { useAuth } from '@/lib/auth';
+import { useAuth, useRequireRole } from '@/lib/auth';
 
 const typeFilter = ['ALL', 'RECEIVE', 'SHIP', 'TRANSFER', 'ADJUSTMENT', 'RETURN'];
 
@@ -24,6 +24,7 @@ const typeIcon: Record<string, React.ReactNode> = {
 };
 
 export default function MovementsPage() {
+  useRequireRole(['ADMIN', 'MANAGER', 'WAREHOUSE_OPERATOR']);
   const { user } = useAuth();
   const qc = useQueryClient();
   const [filter, setFilter] = useState('ALL');

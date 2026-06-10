@@ -8,22 +8,16 @@ import Modal from '@/components/Modal';
 import StatusBadge from '@/components/StatusBadge';
 import EmptyState from '@/components/EmptyState';
 import { UserMultipleIcon, PlusSignIcon } from 'hugeicons-react';
-import { useAuth } from '@/lib/auth';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useAuth, useRequireRole } from '@/lib/auth';
 
 const roles: UserRole[] = ['ADMIN', 'WAREHOUSE_OPERATOR', 'PROCUREMENT', 'QC_INSPECTOR', 'MANAGER'];
 
 export default function UsersPage() {
+  useRequireRole(['ADMIN']);
   const { user } = useAuth();
-  const router = useRouter();
   const qc = useQueryClient();
   const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState({ name: '', email: '', password: '', role: 'WAREHOUSE_OPERATOR' as UserRole });
-
-  useEffect(() => {
-    if (user && user.role !== 'ADMIN') router.replace('/dashboard');
-  }, [user, router]);
 
   const { data: users = [], isLoading } = useQuery<User[]>({
     queryKey: ['users'],
@@ -99,7 +93,7 @@ export default function UsersPage() {
         <div className="space-y-4">
           {[
             { field: 'name', label: 'Full Name', placeholder: 'John Smith', type: 'text' },
-            { field: 'email', label: 'Email', placeholder: 'john@stockpilot.com', type: 'email' },
+            { field: 'email', label: 'Email', placeholder: 'john@abibas.com', type: 'email' },
             { field: 'password', label: 'Password', placeholder: '••••••••', type: 'password' },
           ].map(({ field, label, placeholder, type }) => (
             <div key={field}>

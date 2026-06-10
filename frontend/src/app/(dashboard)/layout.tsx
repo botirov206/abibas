@@ -17,7 +17,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <div className="min-h-screen flex items-center justify-center bg-brand-bg">
         <div className="flex flex-col items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-brand-yellow animate-pulse" />
-          <p className="text-sm text-brand-muted font-medium">Loading StockPilot...</p>
+          <p className="text-sm text-brand-muted font-medium">Loading Abibas...</p>
         </div>
       </div>
     );

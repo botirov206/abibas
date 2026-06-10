@@ -1,6 +1,6 @@
-# StockPilot WMS (abibas) — Docker Deployment Guide
+# Abibas WMS (abibas) — Docker Deployment Guide
 
-Deploy **StockPilot WMS** using **Docker Compose** on an Ubuntu VPS, with **Nginx** and **Let's Encrypt HTTPS** on the host.
+Deploy **Abibas WMS** using **Docker Compose** on an Ubuntu VPS, with **Nginx** and **Let's Encrypt HTTPS** on the host.
 
 > **Deployment method:** Docker only. Do not use PM2 or bare-metal Node/Python on the server — the stack is designed to run entirely in containers.
 
@@ -145,7 +145,7 @@ docker compose exec backend uv run python -m app.db.seed
 ```bash
 # Backend health
 curl http://localhost:8000/health
-# Expected: {"status":"ok","service":"StockPilot WMS"}
+# Expected: {"status":"ok","service":"Abibas WMS"}
 
 # Frontend
 curl -I http://localhost:3000
@@ -155,7 +155,7 @@ curl -I http://localhost:3000
 bash scripts/test-stack.sh
 ```
 
-Open `http://localhost:3000` and log in with `admin@stockpilot.com` / `pass1234`.
+Open `http://localhost:3000` and log in with `admin@Abibas.com` / `pass1234`.
 
 ### Stop local stack
 
@@ -173,7 +173,7 @@ In your domain host, add:
 
 | Field           | Value                                   |
 | --------------- | --------------------------------------- |
-| **Host / Name** | `stockpilot` (or your chosen subdomain) |
+| **Host / Name** | `Abibas` (or your chosen subdomain) |
 | **Type**        | `A`                                     |
 | **Value**       | Your server **public** IP               |
 | **TTL**         | `300`                                   |
@@ -309,12 +309,12 @@ GitHub Actions  —— Actions deploy key ——→  Server (git pull + docker c
 Run as **`ubuntu`**:
 
 ```bash
-ssh-keygen -t ed25519 -C "stockpilot-server-git" -f ~/.ssh/github_repo -N ""
+ssh-keygen -t ed25519 -C "Abibas-server-git" -f ~/.ssh/github_repo -N ""
 cat ~/.ssh/github_repo.pub
 ```
 
 1. GitHub → your **private repo** → **Settings** → **Deploy keys** → **Add deploy key**
-2. Title: `stockpilot-server`
+2. Title: `Abibas-server`
 3. Paste the public key (one long line)
 4. **Do not** enable write access
 5. Save
@@ -441,7 +441,7 @@ docker compose exec backend uv run python -m app.db.seed
 ```bash
 # Backend health (inside container — prod does not expose :8000 on host)
 docker compose -f docker-compose.prod.yml exec backend uv run python -c "import urllib.request; print(urllib.request.urlopen('http://127.0.0.1:8000/health').read().decode())"
-# Expected: {"status":"ok","service":"StockPilot WMS"}
+# Expected: {"status":"ok","service":"Abibas WMS"}
 
 # Frontend responding
 curl -I http://127.0.0.1:3000
@@ -550,9 +550,9 @@ Open:
 http://abibas.kindycloud.uz
 ```
 
-You should see the **StockPilot login page**.
+You should see the **Abibas login page**.
 
-Login with: `admin@stockpilot.com` / `pass1234`
+Login with: `admin@Abibas.com` / `pass1234`
 
 #### If HTTP does not work
 
@@ -915,7 +915,7 @@ docker compose -f docker-compose.prod.yml exec backend uv run python -c "import 
 # OR through the frontend proxy:
 curl -sf http://127.0.0.1:3000/api/v1/auth/login -X POST \
   -H "Content-Type: application/json" \
-  -d '{"email":"admin@stockpilot.com","password":"pass1234"}'
+  -d '{"email":"admin@Abibas.com","password":"pass1234"}'
 ```
 
 ### Certbot: `Timeout during connect (likely firewall problem)`
@@ -997,7 +997,7 @@ docker compose up -d frontend
 
 | What             | Command / URL                                                                               |
 | ---------------- | ------------------------------------------------------------------------------------------- |
-| Admin login      | `admin@stockpilot.com` / `pass1234`                                                         |
+| Admin login      | `admin@Abibas.com` / `pass1234`                                                         |
 | Local start      | `docker compose up --build -d`                                                              |
 | Production start | `docker compose -f docker-compose.prod.yml up --build -d`             |
 | Stop stack       | `docker compose down`                                                                       |

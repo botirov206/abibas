@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.routers import auth, users, warehouses, products, suppliers, inventory, purchase_orders, sales_orders, movements, dashboard
 
 app = FastAPI(
-    title="StockPilot WMS",
+    title="Abibas WMS",
     description="Electronics & Hardware Warehouse Management System",
     version="1.0.0",
 )
@@ -32,4 +32,4 @@ app.include_router(dashboard.router, prefix=PREFIX)
 
 @app.get("/health", tags=["health"])
 def health():
-    return {"status": "ok", "service": "StockPilot WMS"}
+    return {"status": "ok", "service": "Abibas WMS"}

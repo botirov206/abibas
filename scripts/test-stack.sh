@@ -8,7 +8,7 @@ FAIL=0
 # Production: backend has no host port — route API through the frontend proxy.
 if [ -n "${API_URL:-}" ]; then
   API="$API_URL"
-elif curl -sf --connect-timeout 2 "http://127.0.0.1:8000/health" 2>/dev/null | grep -q 'StockPilot WMS'; then
+elif curl -sf --connect-timeout 2 "http://127.0.0.1:8000/health" 2>/dev/null | grep -q 'Abibas WMS'; then
   API="http://127.0.0.1:8000"
 else
   API="$FE"
@@ -70,20 +70,20 @@ get_token() {
   echo "$token"
 }
 
-echo "=== StockPilot WMS Stack Test ==="
+echo "=== Abibas WMS Stack Test ==="
 echo "API: $API | Frontend: $FE"
 echo ""
 
 # Health — direct /health in dev; via login proxy in production
 if [ "$API" = "$FE" ]; then
-  check "Backend health (via frontend proxy)" "curl -sf -X POST '$API/api/v1/auth/login' -H 'Content-Type: application/json' -d '{\"email\":\"admin@stockpilot.com\",\"password\":\"pass1234\"}' | grep -q 'access_token'"
+  check "Backend health (via frontend proxy)" "curl -sf -X POST '$API/api/v1/auth/login' -H 'Content-Type: application/json' -d '{\"email\":\"admin@abibas.com\",\"password\":\"pass1234\"}' | grep -q 'access_token'"
 else
-  check "Backend health" "curl -sf '$API/health' | grep -q 'StockPilot WMS'"
+  check "Backend health" "curl -sf '$API/health' | grep -q 'Abibas WMS'"
 fi
 
 # Login (FastAPI returns access_token at top level)
 TOKEN=""
-if TOKEN=$(get_token "admin@stockpilot.com" "pass1234"); then
+if TOKEN=$(get_token "admin@abibas.com" "pass1234"); then
   check "Admin login returns JWT" "test -n '$TOKEN'"
 else
   echo "✗ Admin login returns JWT"
@@ -94,7 +94,7 @@ fi
 if [ -n "${TOKEN:-}" ]; then
   AUTH="Authorization: Bearer $TOKEN"
 
-  check "GET /auth/me" "curl -sf -H '$AUTH' '$API/api/v1/auth/me' | grep -q 'admin@stockpilot.com'"
+  check "GET /auth/me" "curl -sf -H '$AUTH' '$API/api/v1/auth/me' | grep -q 'admin@abibas.com'"
   check "GET /products" "curl -sf -H '$AUTH' '$API/api/v1/products' | grep -q 'NK-AF1'"
   check "GET /dashboard" "curl -sf -H '$AUTH' '$API/api/v1/dashboard' | grep -q 'total_products'"
   check "GET /inventory" "curl -sf -H '$AUTH' '$API/api/v1/inventory' | grep -q 'quantity'"
@@ -107,7 +107,7 @@ if [ -n "${TOKEN:-}" ]; then
   check "GET /suppliers" "curl -sf -H '$AUTH' '$API/api/v1/suppliers' | grep -q 'Nike'"
 
   # Role-based access
-  if OP_TOKEN=$(get_token "operator@stockpilot.com" "pass1234"); then
+  if OP_TOKEN=$(get_token "operator@abibas.com" "pass1234"); then
     check "Operator can access inventory" "curl -sf -H 'Authorization: Bearer $OP_TOKEN' '$API/api/v1/inventory' | grep -q 'quantity'"
     check "Operator blocked from users" "test \$(curl -s -o /dev/null -w '%{http_code}' -H 'Authorization: Bearer $OP_TOKEN' '$API/api/v1/users') = '403'"
   else
@@ -115,7 +115,7 @@ if [ -n "${TOKEN:-}" ]; then
     FAIL=$((FAIL + 2))
   fi
 
-  if PROC_TOKEN=$(get_token "procurement@stockpilot.com" "pass1234"); then
+  if PROC_TOKEN=$(get_token "procurement@abibas.com" "pass1234"); then
     check "Procurement can access suppliers" "curl -sf -H 'Authorization: Bearer $PROC_TOKEN' '$API/api/v1/suppliers' | grep -q 'Nike'"
     check "Procurement can access purchase-orders" "curl -sf -H 'Authorization: Bearer $PROC_TOKEN' '$API/api/v1/purchase-orders' | grep -q 'status'"
   else

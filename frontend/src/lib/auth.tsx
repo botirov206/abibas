@@ -1,6 +1,7 @@
 'use client';
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User } from '@/types';
+import { useRouter } from 'next/navigation';
+import { User, UserRole } from '@/types';
 import api from './api';
 
 interface AuthCtx {
@@ -50,3 +51,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 }
 
 export const useAuth = () => useContext(Ctx);
+
+export function useRequireRole(allowed: UserRole[]) {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+  useEffect(() => {
+    if (!loading && user && !allowed.includes(user.role)) {
+      router.replace('/dashboard');
+    }
+  }, [user, loading]);
+}

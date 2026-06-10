@@ -1,4 +1,4 @@
-# StockPilot WMS — Frontend Design System
+# Abibas WMS — Frontend Design System
 
 > Adapted from the InventiEase visual style guide. Read this file before touching any component.
 > Icon library: `lucide-react` — use large sizes throughout (nav: 28px, cards: 24px, KPIs: 32px).
@@ -77,7 +77,7 @@
 │  bg-slate-950 text-white                   │  bg-slate-50    │
 │                                            │                 │
 │  ┌─ Logo / Brand ─────────────────┐        │  ┌─ Topbar ──┐  │
-│  │  ⚡ StockPilot                 │        │  │ Search    │  │
+│  │  ⚡ Abibas                 │        │  │ Search    │  │
 │  └────────────────────────────────┘        │  │ + Avatar  │  │
 │                                            │  └───────────┘  │
 │  ┌─ Nav items (icon + label) ─────┐        │                 │
@@ -219,7 +219,7 @@ placeholder:text-slate-400
 
 ### 6.1 `/login`
 - Full-screen split: left panel (slate-950 bg, brand + tagline), right panel (white, form)
-- Left: Large `⚡` logo, "StockPilot WMS", subtitle, decorative product icons grid (opacity-20)
+- Left: Large `⚡` logo, "Abibas WMS", subtitle, decorative product icons grid (opacity-20)
 - Right: Card centered, "Welcome back" heading, email + password inputs, Sign in button (lime)
 - No nav/sidebar
 

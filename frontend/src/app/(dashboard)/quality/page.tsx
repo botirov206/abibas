@@ -7,9 +7,10 @@ import {
   Alert01Icon, Shield01Icon, CheckmarkCircle01Icon, CancelCircleIcon,
   Calendar01Icon, Location01Icon,
 } from 'hugeicons-react';
-import { useAuth } from '@/lib/auth';
+import { useAuth, useRequireRole } from '@/lib/auth';
 
 export default function QualityPage() {
+  useRequireRole(['ADMIN', 'MANAGER', 'QC_INSPECTOR']);
   const { user } = useAuth();
   const qc = useQueryClient();
   const canAct = ['ADMIN', 'QC_INSPECTOR'].includes(user?.role ?? '');
