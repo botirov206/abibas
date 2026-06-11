@@ -21,7 +21,7 @@ class Supplier(SQLModel, table=True):
     country: str = Field(default="UK", max_length=50)
     lead_time_days: int = Field(default=5)
     is_active: bool = Field(default=True)
-
+#changing Using CI/CD 
 
 class Product(SQLModel, table=True):
     __tablename__ = "products"
