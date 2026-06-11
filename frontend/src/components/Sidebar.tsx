@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 const navItems = [
-  { href: '/dashboard',       icon: DashboardSquare01Icon, label: 'Dashboard',       roles: ['ADMIN','MANAGER','WAREHOUSE_OPERATOR','PROCUREMENT','QC_INSPECTOR'] },
+  { href: '/dashboard',       icon: DashboardSquare01Icon, label: 'Salom Dunyo',       roles: ['ADMIN','MANAGER','WAREHOUSE_OPERATOR','PROCUREMENT','QC_INSPECTOR'] },
   { href: '/products',        icon: Package01Icon,          label: 'Products',        roles: ['ADMIN','MANAGER','WAREHOUSE_OPERATOR','PROCUREMENT','QC_INSPECTOR'] },
   { href: '/inventory',       icon: Store01Icon,            label: 'Inventory',       roles: ['ADMIN','MANAGER','WAREHOUSE_OPERATOR','QC_INSPECTOR'] },
   { href: '/suppliers',       icon: Building04Icon,         label: 'Suppliers',       roles: ['ADMIN','MANAGER','PROCUREMENT'] },
