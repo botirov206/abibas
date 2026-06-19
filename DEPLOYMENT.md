@@ -6,30 +6,26 @@ Replace `abibas.kindycloud.uz` with your domain throughout.
 
 ## Ports
 
-Abibas uses **non-default host ports** so it can run alongside other projects on the same server.
-
 | Where | Host port | Container port | Notes |
 | ----- | --------- | -------------- | ----- |
-| Frontend (local) | **3010** | 3000 | `docker-compose.yml` |
-| Backend (local) | **8010** | 8000 | `docker-compose.yml` |
-| Frontend (production) | **3010** | 3000 | `127.0.0.1:3010` — Nginx proxies here |
+| Frontend (local) | **3000** | 3000 | `docker-compose.yml` |
+| Backend (local) | **8000** | 8000 | `docker-compose.yml` |
+| Frontend (production) | **3000** | 3000 | `127.0.0.1:3000` — Nginx proxies here |
 | Backend (production) | — | 8000 | Not exposed on host; reached as `backend:8000` inside Docker |
-
-Containers still listen on **3000** (frontend) and **8000** (backend) internally. Only the **host** mapping changes.
 
 ---
 
 ## Architecture
 
 ```text
-Internet → Nginx (:80 / :443) → 127.0.0.1:3010 (frontend container)
+Internet → Nginx (:80 / :443) → 127.0.0.1:3000 (frontend container)
                                       ↓
                               backend:8000 (Docker network) → PostgreSQL
 ```
 
 - Do **not** set `NEXT_PUBLIC_API_URL` for Docker builds — the browser uses same-origin `/api/v1/*`.
 - Production: `docker compose -f docker-compose.prod.yml up --build -d`
-- Do **not** open 3010 or 8010 to the internet — only Nginx ports 80 and 443.
+- Do **not** open 3000 or 8000 to the internet — only Nginx ports 80 and 443.
 
 ---
 
@@ -55,8 +51,8 @@ bash scripts/test-stack.sh
 
 | Check | URL |
 | ----- | --- |
-| Frontend | http://localhost:3010 |
-| Backend health | http://localhost:8010/health |
+| Frontend | http://localhost:3000 |
+| Backend health | http://localhost:8000/health |
 | Login | `admin@Abibas.com` / `pass1234` |
 
 Stop: `docker compose down`
@@ -89,7 +85,7 @@ sudo ufw allow 'Nginx Full'
 sudo ufw enable
 ```
 
-Open **22, 80, 443** in your cloud security group. Do **not** open 3010 or 8010 publicly.
+Open **22, 80, 443** in your cloud security group. Do **not** open 3000 or 8000 publicly.
 
 ### 3. Clone and configure
 
@@ -131,7 +127,7 @@ docker compose exec backend uv run alembic upgrade head
 docker compose exec backend uv run python -m app.db.seed
 
 docker compose ps
-curl -I http://127.0.0.1:3010
+curl -I http://127.0.0.1:3000
 bash scripts/test-stack.sh
 ```
 
@@ -146,7 +142,7 @@ server {
     server_name abibas.kindycloud.uz;
 
     location / {
-        proxy_pass http://127.0.0.1:3010;
+        proxy_pass http://127.0.0.1:3000;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -219,12 +215,12 @@ Optional CI/CD: configure GitHub Actions secrets (`SSH_HOST`, `SSH_USER`, `SSH_K
 **Port already in use**
 
 ```bash
-sudo ss -tlnp | grep -E ':3010|:8010'
+sudo ss -tlnp | grep -E ':3000|:8000'
 docker compose -f docker-compose.prod.yml down
 docker compose -f docker-compose.prod.yml up --build -d
 ```
 
-If 3010 is taken, pick another free port (e.g. `3020`) in `docker-compose.prod.yml` and update Nginx `proxy_pass` to match.
+Stop whatever else is bound to 3000 or 8000 before starting the stack.
 
 **Build fails — no space**
 
@@ -242,7 +238,7 @@ Check `DATABASE_URL` is reachable from the server and includes `?sslmode=require
 
 ```bash
 docker compose ps
-curl -I http://127.0.0.1:3010
+curl -I http://127.0.0.1:3000
 sudo tail -20 /var/log/nginx/error.log
 ```
 
@@ -273,9 +269,9 @@ docker compose -f docker-compose.prod.yml up -d
 | What | Value |
 | ---- | ----- |
 | Admin login | `admin@Abibas.com` / `pass1234` |
-| Local frontend | http://localhost:3010 |
-| Local backend | http://localhost:8010/health |
-| Prod frontend (host) | http://127.0.0.1:3010 |
+| Local frontend | http://localhost:3000 |
+| Local backend | http://localhost:8000/health |
+| Prod frontend (host) | http://127.0.0.1:3000 |
 | Local start | `docker compose up --build -d` |
 | Prod start | `docker compose -f docker-compose.prod.yml up --build -d` |
 | Nginx config | `/etc/nginx/sites-available/abibas.kindycloud.uz` |

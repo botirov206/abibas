@@ -6,7 +6,7 @@ services:
     environment:
       PORT: 8000
     ports:
-      - '8010:8000'
+      - '8000:8000'
     networks:
       - app
 
@@ -17,7 +17,7 @@ services:
         API_URL: http://backend:8000
     restart: unless-stopped
     ports:
-      - '3010:3000'
+      - '3000:3000'
     depends_on:
       - backend
     networks:

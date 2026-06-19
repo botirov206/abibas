@@ -1,5 +1,5 @@
 # Production stack — standalone file (no merge with docker-compose.yml).
-# Backend is internal-only; Nginx proxies to 127.0.0.1:3010 (host port).
+# Backend is internal-only; Nginx proxies to 127.0.0.1:3000.
 #
 # Usage:
 #   docker compose -f docker-compose.prod.yml up --build -d
@@ -21,7 +21,7 @@ services:
         API_URL: http://backend:8000
     restart: unless-stopped
     ports:
-      - '127.0.0.1:3010:3000'
+      - '127.0.0.1:3000:3000'
     depends_on:
       - backend
     networks:

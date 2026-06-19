@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 set -uo pipefail
 
-FE="${FE_URL:-http://127.0.0.1:3010}"
+FE="${FE_URL:-http://127.0.0.1:3000}"
 PASS=0
 FAIL=0
 
 # Production: backend has no host port — route API through the frontend proxy.
 if [ -n "${API_URL:-}" ]; then
   API="$API_URL"
-elif curl -sf --connect-timeout 2 "http://127.0.0.1:8010/health" 2>/dev/null | grep -q 'Abibas WMS'; then
-  API="http://127.0.0.1:8010"
+elif curl -sf --connect-timeout 2 "http://127.0.0.1:8000/health" 2>/dev/null | grep -q 'Abibas WMS'; then
+  API="http://127.0.0.1:8000"
 else
   API="$FE"
 fi
